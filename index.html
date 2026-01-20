@@ -436,6 +436,7 @@
     <script>
       const PIN_CODE = "050522";
       let currentResultObj = null;
+      let historyBuffer = []; // Anti-Repetisi: Menyimpan hukuman yang baru keluar
 
       // === DATABASE HUKUMAN ===
       const dbPutra = [
@@ -847,11 +848,11 @@
 
         badge.innerText = mode;
         badge.className = `inline-block px-4 py-1 border border-white/20 rounded text-[10px] uppercase tracking-widest mb-2 bg-white/5 ${color}`;
-        
+
         // Reset state for new roll
         actions.classList.add("hidden");
         actions.style.opacity = 0;
-        
+
         // Reset Guide Panel
         const guidePanel = document.getElementById("guide-panel");
         guidePanel.style.display = "none";
@@ -864,7 +865,29 @@
 
         const totalItems = 50;
         const winnerIndex = 40;
-        currentResultObj = db[Math.floor(Math.random() * db.length)];
+
+        // === LOGIKA ANTI-REPETISI ===
+        let candidate;
+        let attempt = 0;
+        let maxAttempt = 20;
+
+        // Cari kandidat yang belum ada di history
+        do {
+          candidate = db[Math.floor(Math.random() * db.length)];
+          attempt++;
+        } while (historyBuffer.includes(candidate.t) && attempt < maxAttempt);
+
+        // Set kandidat terpilih
+        currentResultObj = candidate;
+
+        // Simpan ke history
+        historyBuffer.push(candidate.t);
+        // Jaga buffer maksimal 4 item (agar tidak kehabisan stok)
+        if (historyBuffer.length > 4) {
+          historyBuffer.shift(); // Buang yang paling lama
+        }
+        // === END LOGIKA ANTI-REPETISI ===
+
         let html = "";
         for (let i = 0; i < totalItems; i++) {
           let itemObj =
@@ -925,7 +948,7 @@
 
           // Set state awal sebelum animasi
           panel.style.display = "block";
-          
+
           // Reset GSAP properties untuk memastikan start dari 0
           gsap.set(panel, { height: 0, opacity: 0 });
 
@@ -945,12 +968,12 @@
           opacity: 0,
           duration: 0.3,
           onComplete: () => {
-             overlay.classList.add("hidden");
-             // Reset guide panel state when closing modal
-             const guidePanel = document.getElementById("guide-panel");
-             guidePanel.style.display = "none";
-             guidePanel.style.height = 0;
-             guidePanel.style.opacity = 0;
+            overlay.classList.add("hidden");
+            // Reset guide panel state when closing modal
+            const guidePanel = document.getElementById("guide-panel");
+            guidePanel.style.display = "none";
+            guidePanel.style.height = 0;
+            guidePanel.style.opacity = 0;
           },
         });
       }
