@@ -436,12 +436,31 @@
     <script>
       const PIN_CODE = "050522";
       let currentResultObj = null;
-      let historyBuffer = []; // Anti-Repetisi: Menyimpan hukuman yang baru keluar
+      let historyBuffer = [];
+
+      // === SETUP AUDIO ===
+      const sfxLock = new Audio(
+        "https://cdn.pixabay.com/audio/2022/03/24/audio_7314742a03.mp3",
+      );
+      sfxLock.volume = 0.5;
+
+      function speakPunishment(text) {
+        if ("speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+          const msg = new SpeechSynthesisUtterance();
+          msg.text = `Target Hukuman Terkunci. ${text}. Gass Laksanakan!`;
+          msg.lang = "id-ID";
+          msg.rate = 0.9;
+          msg.pitch = 0.8;
+          msg.volume = 1;
+          window.speechSynthesis.speak(msg);
+        }
+      }
 
       // === DATABASE HUKUMAN ===
       const dbPutra = [
         {
-          t: "Push Up 50x",
+          t: "Push Up 50 Kali",
           steps: [
             "Posisi tiarap, tangan selebar bahu.",
             "Badan harus lurus (papan).",
@@ -452,7 +471,7 @@
           b: "Melatih otot dada (pectoral) dan tricep agar baju PDU terlihat gagah dan tegap saat dipakai.",
         },
         {
-          t: "Scout Jump 30x",
+          t: "Scout Jump 30 Kali",
           steps: [
             "Posisi jongkok, satu kaki depan, satu belakang.",
             "Tangan dikaitkan di belakang kepala.",
@@ -462,7 +481,7 @@
           b: "Melatih kekuatan ledakan (explosive power) kaki untuk langkah tegap yang bertenaga.",
         },
         {
-          t: "Sprint Bolak Balik 5x",
+          t: "Sprint Bolak Balik 5 Kali",
           steps: [
             "Lari secepat mungkin (Full Speed).",
             "Lakukan Lari  Bolak Balik (Sesuai Lapangan) sebanyak 5x.",
@@ -470,7 +489,7 @@
           b: "Meningkatkan stamina kardiovaskular agar tidak mudah pingsan saat upacara panjang.",
         },
         {
-          t: "Sikap Tobat 1,5m",
+          t: "Sikap Tobat 1,5 menit",
           steps: [
             "Letakkan kepala (ubun-ubun) di lantai.",
             "Kedua tangan di belakang punggung.",
@@ -480,7 +499,7 @@
           b: "Melatih mental ketahanan dan memperlancar aliran darah ke otak agar fokus meningkat.",
         },
         {
-          t: "Burpees 20x",
+          t: "Burpees 20 Kali",
           steps: [
             "Berdiri tegak.",
             "Jongkok letakkan tangan di lantai.",
@@ -502,7 +521,7 @@
           b: "Memperkuat otot inti (Core) agar sikap sempurna bisa bertahan berjam-jam tanpa goyah.",
         },
         {
-          t: "Sit Up 40x",
+          t: "Sit Up 40 Kali",
           steps: [
             "Tidur telentang, lutut ditekuk 45 derajat.",
             "Tangan di samping telinga atau silang di dada.",
@@ -512,7 +531,7 @@
           b: "Membentuk otot perut (Sixpack) dan menjaga postur pinggang saat baris berbaris.",
         },
         {
-          t: "Merayap 20m",
+          t: "Merayap 20 menit",
           steps: [
             "Badan tiarap penuh di tanah/rumput.",
             "Maju menggunakan kekuatan siku dan tolakan kaki.",
@@ -522,7 +541,7 @@
           b: "Melatih koordinasi tubuh dan kekuatan bahu, serta mental pantang menyerah.",
         },
         {
-          t: "Push Up Diamond 15x",
+          t: "Push Up Diamond 15 Kali",
           steps: [
             "Satukan jari telunjuk dan ibu jari membentuk wajik/diamond.",
             "Posisi tangan tepat di bawah ulu hati.",
@@ -531,7 +550,7 @@
           b: "Fokus melatih otot tricep bagian dalam untuk kekuatan tangan saat mengerek bendera.",
         },
         {
-          t: "Mountain Climber 1m",
+          t: "Mountain Climber 1 Menit",
           steps: [
             "Posisi awal push up.",
             "Tarik lutut kanan ke arah dada.",
@@ -574,7 +593,7 @@
           b: "Menguatkan otot paha (Quadriceps) untuk menopang tubuh saat langkah tegap perlahan.",
         },
         {
-          t: "Jumping Jack 50x",
+          t: "Jumping Jack 50 Kali",
           steps: [
             "Berdiri tegak.",
             "Lompat buka kaki sambil tepuk tangan di atas kepala.",
@@ -584,7 +603,7 @@
           b: "Melatih koordinasi tangan-kaki dan meningkatkan kapasitas jantung (Cardio).",
         },
         {
-          t: "Squat 30x",
+          t: "Squat 30 Kali",
           steps: [
             "Berdiri selebar bahu.",
             "Turunkan pantat seolah mau duduk di kursi.",
@@ -594,7 +613,7 @@
           b: "Melatih otot bokong dan paha agar kuda-kuda kaki kuat saat PBB.",
         },
         {
-          t: "Langkah Tegap 50m",
+          t: "Langkah Tegap Sesuai Ukuran Lapangan",
           steps: [
             "Maju jalan dengan hentakan tumit keras.",
             "Ayunan tangan lurus rata bahu (depan) dan 30 derajat (belakang).",
@@ -615,7 +634,7 @@
           b: "Melatih ketahanan otot bahu dan fokus mata (tidak lirik-lirik) saat upacara.",
         },
         {
-          t: "Kapal Terbang 1m",
+          t: "Kapal Terbang 1 Menit",
           steps: [
             "Berdiri dengan satu kaki.",
             "Condongkan badan ke depan, kaki belakang lurus ke atas.",
@@ -625,7 +644,7 @@
           b: "Melatih keseimbangan tubuh (Balance) yang penting untuk manuver barisan.",
         },
         {
-          t: "Back Up 25x",
+          t: "Back Up 25 Kali",
           steps: [
             "Tidur telungkup.",
             "Tangan di samping telinga/belakang kepala.",
@@ -635,7 +654,7 @@
           b: "Menguatkan otot pinggang belakang agar tidak mudah pegal saat berdiri tegak.",
         },
         {
-          t: "Tahan Nafas 1m",
+          t: "Tahan Nafas 1 Menit",
           steps: [
             "Ambil nafas dalam-dalam lewat hidung.",
             "Simpan di rongga dada/perut.",
@@ -688,7 +707,7 @@
           b: "Melatih kepekaan, kepedulian lingkungan, dan kerendahan hati seorang Paskibra.",
         },
         {
-          t: "PBB Dasar 5m",
+          t: "PBB Dasar 5 Menit",
           steps: [
             "Lakukan gerakan di tempat: Hadap Kanan, Hadap Kiri, Balik Kanan.",
             "Gerakan harus patah-patah.",
@@ -697,7 +716,7 @@
           b: "Mempertajam refleks gerakan dasar agar tidak ada kesalahan saat manuver.",
         },
         {
-          t: "Sikap Sempurna 8m",
+          t: "Sikap Sempurna 8 Menit",
           steps: [
             "Tumit rapat, ujung kaki buka 45 derajat.",
             "Lutut dikunci lurus.",
@@ -866,34 +885,36 @@
         const totalItems = 50;
         const winnerIndex = 40;
 
-        // === LOGIKA ANTI-REPETISI ===
+        // === LOGIKA ANTI-REPETISI & ANTI-KEMBAR TETANGGA ===
         let candidate;
         let attempt = 0;
         let maxAttempt = 20;
 
-        // Cari kandidat yang belum ada di history
+        // 1. Pilih Pemenang (Tidak boleh sama dengan history)
         do {
           candidate = db[Math.floor(Math.random() * db.length)];
           attempt++;
         } while (historyBuffer.includes(candidate.t) && attempt < maxAttempt);
 
-        // Set kandidat terpilih
         currentResultObj = candidate;
-
-        // Simpan ke history
         historyBuffer.push(candidate.t);
-        // Jaga buffer maksimal 4 item (agar tidak kehabisan stok)
-        if (historyBuffer.length > 4) {
-          historyBuffer.shift(); // Buang yang paling lama
-        }
-        // === END LOGIKA ANTI-REPETISI ===
+        if (historyBuffer.length > 4) historyBuffer.shift();
 
+        // 2. Generate Tampilan HTML
         let html = "";
         for (let i = 0; i < totalItems; i++) {
-          let itemObj =
-            i === winnerIndex
-              ? currentResultObj
-              : db[Math.floor(Math.random() * db.length)];
+          let itemObj;
+
+          if (i === winnerIndex) {
+            itemObj = currentResultObj;
+          } else {
+            // Pastikan item acak di sekitar pemenang TIDAK SAMA dengan pemenang
+            // biar ga kelihatan double
+            do {
+              itemObj = db[Math.floor(Math.random() * db.length)];
+            } while (itemObj.t === currentResultObj.t);
+          }
+
           html += `<div class="roulette-item ${i === winnerIndex ? "winner-target" : ""}">${itemObj.t}</div>`;
         }
         track.innerHTML = html;
@@ -917,6 +938,10 @@
             status.style.color = "#22c55e";
             actions.classList.remove("hidden");
             gsap.to(actions, { opacity: 1, y: 0, duration: 0.5 });
+
+            // PLAY AUDIO DISINI
+            sfxLock.play();
+            speakPunishment(currentResultObj.t);
           },
         });
       }
@@ -964,6 +989,11 @@
 
       function closeResult() {
         const overlay = document.getElementById("result-overlay");
+        // Hentikan suara jika user menutup modal sebelum robot selesai bicara
+        if ("speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+        }
+
         gsap.to(overlay, {
           opacity: 0,
           duration: 0.3,
