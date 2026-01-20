@@ -167,10 +167,13 @@
         text-align: left;
         margin-top: 20px;
         border-radius: 8px;
-        display: none;
+        display: none; /* Awalnya hidden */
+        opacity: 0; /* Awalnya transparan */
+        height: 0; /* Awalnya 0 */
         max-height: 300px;
         overflow-y: auto;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        overflow: hidden; /* Penting untuk animasi height */
       }
       /* Custom Scrollbar for Guide */
       .guide-box::-webkit-scrollbar {
@@ -383,7 +386,7 @@
         >
           <button
             onclick="toggleGuide()"
-            class="mb-4 px-6 py-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black text-xs font-bold tracking-widest rounded-full transition-all flex items-center justify-center gap-2 mx-auto"
+            class="mb-4 px-6 py-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black text-xs font-bold tracking-widest rounded-full transition-all flex items-center justify-center gap-2 mx-auto select-none"
           >
             <span>📘</span> LIHAT INSTRUKSI & MANFAAT
           </button>
@@ -434,9 +437,7 @@
       const PIN_CODE = "050522";
       let currentResultObj = null;
 
-      // === DATABASE HUKUMAN LENGKAP (STEP + MANFAAT) ===
-      // t: Title, steps: Array langkah, b: Manfaat (Benefit)
-
+      // === DATABASE HUKUMAN ===
       const dbPutra = [
         {
           t: "Push Up 50x",
@@ -737,7 +738,7 @@
       });
       window.onload = () => document.getElementById("real-pin").focus();
 
-      // === LOGIN ===
+      // === LOGIN LOGIC ===
       const realPin = document.getElementById("real-pin");
       const digits = document.querySelectorAll(".pin-digit");
       realPin.addEventListener("input", (e) => {
@@ -780,7 +781,7 @@
         }, 800);
       }
 
-      // === DASHBOARD ===
+      // === DASHBOARD LOGIC ===
       function changeCount(n) {
         document.querySelectorAll(".count-btn").forEach((btn, i) => {
           const active = i + 1 === n;
@@ -838,7 +839,6 @@
           color = "text-pink-400";
         }
 
-        // UI Setup
         const overlay = document.getElementById("result-overlay");
         const track = document.getElementById("roulette-track");
         const actions = document.getElementById("result-actions");
@@ -847,14 +847,21 @@
 
         badge.innerText = mode;
         badge.className = `inline-block px-4 py-1 border border-white/20 rounded text-[10px] uppercase tracking-widest mb-2 bg-white/5 ${color}`;
+        
+        // Reset state for new roll
         actions.classList.add("hidden");
         actions.style.opacity = 0;
-        document.getElementById("guide-panel").style.display = "none";
+        
+        // Reset Guide Panel
+        const guidePanel = document.getElementById("guide-panel");
+        guidePanel.style.display = "none";
+        guidePanel.style.height = 0;
+        guidePanel.style.opacity = 0;
+
         status.innerText = "MENGACAK HUKUMAN...";
         status.classList.add("animate-pulse");
         status.style.color = "#ef4444";
 
-        // Prepare Items
         const totalItems = 50;
         const winnerIndex = 40;
         currentResultObj = db[Math.floor(Math.random() * db.length)];
@@ -872,7 +879,6 @@
         gsap.to(overlay, { opacity: 1, duration: 0.3 });
         gsap.set(track, { y: 0 });
 
-        // Calc position
         const targetY = -(winnerIndex * 50 + 25 - 60);
         if (navigator.vibrate) navigator.vibrate(100);
 
@@ -892,45 +898,62 @@
         });
       }
 
-      // === GUIDE LOGIC ===
+      // === GUIDE LOGIC (FIXED) ===
       function toggleGuide() {
         const panel = document.getElementById("guide-panel");
         const stepsList = document.getElementById("guide-steps");
         const benefitText = document.getElementById("guide-benefit");
 
-        if (panel.style.display === "block") {
+        // Cek apakah panel sedang terlihat
+        if (panel.style.display === "block" && panel.style.opacity !== "0") {
+          // CLOSE ANIMATION
           gsap.to(panel, {
             height: 0,
             opacity: 0,
             duration: 0.3,
-            onComplete: () => (panel.style.display = "none"),
+            onComplete: () => {
+              panel.style.display = "none";
+            },
           });
         } else {
-          // Populate Data
+          // OPEN ANIMATION
+          // Isi data dulu
           stepsList.innerHTML = currentResultObj.steps
             .map((s) => `<li>${s}</li>`)
             .join("");
           benefitText.textContent = currentResultObj.b;
 
+          // Set state awal sebelum animasi
           panel.style.display = "block";
-          panel.style.height = "auto";
-          gsap.from(panel, {
-            height: 0,
-            opacity: 0,
+          
+          // Reset GSAP properties untuk memastikan start dari 0
+          gsap.set(panel, { height: 0, opacity: 0 });
+
+          // Animate to auto height
+          gsap.to(panel, {
+            height: "auto",
+            opacity: 1,
             duration: 0.5,
             ease: "power2.out",
           });
         }
       }
+
       function closeResult() {
         const overlay = document.getElementById("result-overlay");
         gsap.to(overlay, {
           opacity: 0,
           duration: 0.3,
-          onComplete: () => overlay.classList.add("hidden"),
+          onComplete: () => {
+             overlay.classList.add("hidden");
+             // Reset guide panel state when closing modal
+             const guidePanel = document.getElementById("guide-panel");
+             guidePanel.style.display = "none";
+             guidePanel.style.height = 0;
+             guidePanel.style.opacity = 0;
+          },
         });
       }
     </script>
   </body>
 </html>
-
