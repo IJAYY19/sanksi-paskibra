@@ -1,0 +1,935 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SISTEM SANKSI PASKIBRA - SPISIXFO</title>
+
+    <!-- FONTS -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Chakra+Petch:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- LIBRARIES -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+    <style>
+      /* --- CORE THEME --- */
+      body {
+        background-color: #050000;
+        font-family: "Chakra Petch", sans-serif;
+        color: #ffffff;
+        overflow: hidden;
+      }
+
+      .military-font {
+        font-family: "Black Ops One", cursive;
+      }
+
+      /* Background Animated */
+      .flag-bg {
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at center, #1a0000 0%, #000000 80%);
+        z-index: -2;
+      }
+      .scanline {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0),
+          rgba(255, 255, 255, 0) 50%,
+          rgba(0, 0, 0, 0.2) 50%,
+          rgba(0, 0, 0, 0.2)
+        );
+        background-size: 100% 4px;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      /* Glass Panel */
+      .glass-panel {
+        background: rgba(10, 10, 10, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 2px solid #cc0000;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      }
+
+      /* Elements */
+      .gender-toggle {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s;
+      }
+      .g-male {
+        background: #0f172a;
+        border-color: #3b82f6;
+        color: #60a5fa;
+      }
+      .g-female {
+        background: #3f0c18;
+        border-color: #ec4899;
+        color: #fbcfe8;
+      }
+
+      .btn-merah-putih {
+        background: linear-gradient(180deg, #990000 0%, #ff0000 100%);
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        transition: 0.3s;
+        border: 1px solid #ffcccc;
+      }
+      .btn-merah-putih:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+      }
+      .btn-merah-putih:active {
+        transform: translateY(1px);
+      }
+
+      .pin-digit {
+        width: 50px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        font-size: 24px;
+        text-align: center;
+        color: white;
+        transition: all 0.3s;
+        font-family: "Black Ops One", cursive;
+      }
+
+      /* --- ROULETTE CSS --- */
+      .roulette-wrapper {
+        position: relative;
+        height: 120px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        mask-image: linear-gradient(
+          to bottom,
+          transparent,
+          black 20%,
+          black 80%,
+          transparent
+        );
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent,
+          black 20%,
+          black 80%,
+          transparent
+        );
+      }
+      .selection-box {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 50px;
+        transform: translateY(-50%);
+        border-top: 2px solid #ff0000;
+        border-bottom: 2px solid #ff0000;
+        background: rgba(255, 0, 0, 0.1);
+        z-index: 10;
+        pointer-events: none;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+      }
+      .roulette-item {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Black Ops One", cursive;
+        font-size: 1.5rem;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        opacity: 0.5;
+        white-space: nowrap;
+      }
+      .roulette-item.winner {
+        color: #fff;
+        text-shadow: 0 0 10px #ff0000;
+        opacity: 1;
+      }
+
+      /* Guide Panel Baru */
+      .guide-box {
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid #444;
+        text-align: left;
+        margin-top: 20px;
+        border-radius: 8px;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+      }
+      /* Custom Scrollbar for Guide */
+      .guide-box::-webkit-scrollbar {
+        width: 4px;
+      }
+      .guide-box::-webkit-scrollbar-thumb {
+        background: #555;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flag-bg"></div>
+    <div class="scanline"></div>
+    <div
+      id="particles-js"
+      class="fixed inset-0 pointer-events-none opacity-30"
+    ></div>
+
+    <!-- 1. LOGIN SECTION -->
+    <div
+      id="login-section"
+      class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-xl"
+    >
+      <div class="mb-6 animate-pulse text-yellow-500">
+        <svg
+          class="w-24 h-24 drop-shadow-[0_0_15px_rgba(255,215,0,0.5)]"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path
+            d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+          ></path>
+        </svg>
+      </div>
+      <h1
+        class="military-font text-4xl text-white tracking-widest mb-10 text-center"
+      >
+        ACCESS CONTROL
+      </h1>
+      <h1 class="text-white tracking-widest mb-10 text-center">
+        PASKIBRA SMKN 64 Jakarta
+      </h1>
+      <input
+        type="password"
+        id="real-pin"
+        maxlength="6"
+        class="absolute opacity-0 pointer-events-none"
+      />
+      <div
+        class="flex gap-2 mb-8"
+        onclick="document.getElementById('real-pin').focus()"
+      >
+        <div class="pin-digit flex items-center justify-center"></div>
+        <div class="pin-digit flex items-center justify-center"></div>
+        <div class="pin-digit flex items-center justify-center"></div>
+        <div class="pin-digit flex items-center justify-center"></div>
+        <div class="pin-digit flex items-center justify-center"></div>
+        <div class="pin-digit flex items-center justify-center"></div>
+      </div>
+      <div
+        id="login-status"
+        class="text-red-600 font-bold tracking-widest opacity-0"
+      >
+        DENIED
+      </div>
+    </div>
+
+    <!-- 2. DASHBOARD -->
+    <div
+      id="dashboard-section"
+      class="fixed inset-0 z-10 hidden opacity-0 overflow-y-auto"
+    >
+      <div class="min-h-screen flex items-center justify-center p-4">
+        <div
+          class="glass-panel w-full max-w-2xl rounded-2xl p-6 md:p-8 relative"
+        >
+          <div
+            class="absolute top-0 left-10 right-10 h-[1px] bg-red-600 shadow-[0_0_10px_#f00]"
+          ></div>
+
+          <div
+            class="flex justify-between items-end mb-8 border-b border-white/10 pb-4"
+          >
+            <div>
+              <h2 class="military-font text-3xl text-white tracking-wide">
+                PENENTU HUKUMAN
+              </h2>
+              <p
+                class="text-[10px] text-red-500 font-bold uppercase tracking-[0.3em]"
+              >
+                Sistem SPISIXFO - SMKN 64 Jakarta
+              </p>
+            </div>
+            <div class="text-right">
+              <div class="text-[10px] text-gray-500 uppercase tracking-widest">
+                SYSTEM
+              </div>
+              <div class="text-green-500 font-bold text-xs animate-pulse">
+                READY
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <div>
+              <label
+                class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-3 block"
+                >JUMLAH PERSONEL</label
+              >
+              <div class="grid grid-cols-4 gap-3">
+                <button
+                  onclick="changeCount(1)"
+                  class="count-btn py-3 border border-gray-700 bg-black/40 rounded font-bold text-gray-500 hover:text-white transition-all"
+                >
+                  1
+                </button>
+                <button
+                  onclick="changeCount(2)"
+                  class="count-btn py-3 border border-gray-700 bg-black/40 rounded font-bold text-gray-500 hover:text-white transition-all"
+                >
+                  2
+                </button>
+                <button
+                  onclick="changeCount(3)"
+                  class="count-btn py-3 border border-gray-700 bg-black/40 rounded font-bold text-gray-500 hover:text-white transition-all"
+                >
+                  3
+                </button>
+                <button
+                  onclick="changeCount(4)"
+                  class="count-btn py-3 border border-gray-700 bg-black/40 rounded font-bold text-gray-500 hover:text-white transition-all"
+                >
+                  4
+                </button>
+              </div>
+            </div>
+
+            <div id="input-container" class="space-y-3"></div>
+
+            <button
+              onclick="prepareRoll()"
+              id="btn-execute"
+              class="btn-merah-putih w-full py-5 rounded font-black text-xl uppercase tracking-[0.2em] relative overflow-hidden group"
+            >
+              <span
+                class="relative z-10 flex items-center justify-center gap-2"
+              >
+                <svg
+                  class="w-6 h-6 animate-spin-slow"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+                PUTAR ROULETTE
+              </span>
+            </button>
+
+            <!-- DASHBOARD CREDIT -->
+            <div class="mt-8 text-center border-t border-white/5 pt-4">
+              <p class="creator-credit">
+                ENGINEERED BY <span class="font-bold text-red-500/80">JAY</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. RESULT MODAL (ROULETTE + DETAIL GUIDE) -->
+    <div
+      id="result-overlay"
+      class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center hidden opacity-0 overflow-y-auto"
+    >
+      <div class="w-full max-w-2xl p-4 my-auto">
+        <div class="text-center mb-6">
+          <div
+            id="mode-badge"
+            class="inline-block px-4 py-1 border border-white/20 rounded text-[10px] uppercase tracking-widest bg-white/5 mb-2"
+          >
+            MODE: --
+          </div>
+          <h3
+            class="text-red-500 text-sm tracking-[0.5em] font-bold animate-pulse"
+            id="status-text"
+          >
+            MENGACAK HUKUMAN...
+          </h3>
+        </div>
+
+        <!-- ROULETTE -->
+        <div
+          class="roulette-wrapper relative border-y-2 border-red-900 bg-black/80"
+        >
+          <div class="selection-box"></div>
+          <div class="roulette-track" id="roulette-track"></div>
+        </div>
+
+        <!-- BUTTONS & GUIDE -->
+        <div
+          id="result-actions"
+          class="text-center mt-8 hidden opacity-0 transform translate-y-4 transition-all duration-500"
+        >
+          <button
+            onclick="toggleGuide()"
+            class="mb-4 px-6 py-2 border border-yellow-500 text-yellow-500 hover:bg-yellow-500 hover:text-black text-xs font-bold tracking-widest rounded-full transition-all flex items-center justify-center gap-2 mx-auto"
+          >
+            <span>📘</span> LIHAT INSTRUKSI & MANFAAT
+          </button>
+
+          <!-- Panel Panduan Detail -->
+          <div id="guide-panel" class="guide-box mx-auto max-w-lg mb-6 text-sm">
+            <!-- SECTION 1: LANGKAH -->
+            <div class="border-b border-gray-700 pb-3 mb-3 p-4">
+              <h3
+                class="text-yellow-400 font-bold mb-2 flex items-center gap-2"
+              >
+                <span>⚔️</span> LANGKAH PELAKSANAAN:
+              </h3>
+              <ul
+                id="guide-steps"
+                class="list-disc pl-5 text-gray-300 space-y-1 font-mono text-xs md:text-sm"
+              >
+                <!-- Diisi JS -->
+              </ul>
+            </div>
+
+            <!-- SECTION 2: MANFAAT -->
+            <div class="p-4 bg-blue-900/20">
+              <h3 class="text-blue-400 font-bold mb-2 flex items-center gap-2">
+                <span>🔰</span> MANFAAT DI PASKIBRA:
+              </h3>
+              <p
+                id="guide-benefit"
+                class="text-gray-300 font-mono text-xs md:text-sm leading-relaxed"
+              >
+                <!-- Diisi JS -->
+              </p>
+            </div>
+          </div>
+
+          <button
+            onclick="closeResult()"
+            class="px-8 py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded border border-gray-600 uppercase tracking-widest text-sm"
+          >
+            KEMBALI KE SISTEM
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+      const PIN_CODE = "050522";
+      let currentResultObj = null;
+
+      // === DATABASE HUKUMAN LENGKAP (STEP + MANFAAT) ===
+      // t: Title, steps: Array langkah, b: Manfaat (Benefit)
+
+      const dbPutra = [
+        {
+          t: "Push Up 50x",
+          steps: [
+            "Posisi tiarap, tangan selebar bahu.",
+            "Badan harus lurus (papan).",
+            "Turunkan badan sampai dada 5cm dari lantai.",
+            "Dorong ke atas sampai tangan lurus.",
+            "Pandangan lurus ke depan.",
+          ],
+          b: "Melatih otot dada (pectoral) dan tricep agar baju PDU terlihat gagah dan tegap saat dipakai.",
+        },
+        {
+          t: "Scout Jump 30x",
+          steps: [
+            "Posisi jongkok, satu kaki depan, satu belakang.",
+            "Tangan dikaitkan di belakang kepala.",
+            "Lompat vertikal sambil tukar posisi kaki di udara.",
+            "Mendarat dengan mengeper (lutut ditekuk).",
+          ],
+          b: "Melatih kekuatan ledakan (explosive power) kaki untuk langkah tegap yang bertenaga.",
+        },
+        {
+          t: "Sprint Bolak Balik 5x",
+          steps: [
+            "Lari secepat mungkin (Full Speed).",
+            "Lakukan Lari  Bolak Balik (Sesuai Lapangan) sebanyak 5x.",
+          ],
+          b: "Meningkatkan stamina kardiovaskular agar tidak mudah pingsan saat upacara panjang.",
+        },
+        {
+          t: "Sikap Tobat 1,5m",
+          steps: [
+            "Letakkan kepala (ubun-ubun) di lantai.",
+            "Kedua tangan di belakang punggung.",
+            "Kaki lurus, pantat naik tinggi membentuk segitiga.",
+            "Tahan posisi tanpa bergerak.",
+          ],
+          b: "Melatih mental ketahanan dan memperlancar aliran darah ke otak agar fokus meningkat.",
+        },
+        {
+          t: "Burpees 20x",
+          steps: [
+            "Berdiri tegak.",
+            "Jongkok letakkan tangan di lantai.",
+            "Lempar kaki ke belakang (posisi push up).",
+            "Lakukan 1x push up.",
+            "Tarik kaki kembali jongkok.",
+            "Lompat tinggi tepuk tangan di atas.",
+          ],
+          b: "Melatih seluruh otot tubuh (Full Body Workout) dan stamina pernafasan.",
+        },
+        {
+          t: "Plank 2 Menit",
+          steps: [
+            "Tumpuan pada siku lengan bawah.",
+            "Badan lurus dari kepala sampai tumit.",
+            "Kunci perut (kencangkan).",
+            "Jangan biarkan pinggang turun atau nungging.",
+          ],
+          b: "Memperkuat otot inti (Core) agar sikap sempurna bisa bertahan berjam-jam tanpa goyah.",
+        },
+        {
+          t: "Sit Up 40x",
+          steps: [
+            "Tidur telentang, lutut ditekuk 45 derajat.",
+            "Tangan di samping telinga atau silang di dada.",
+            "Angkat badan sampai dada menyentuh paha.",
+            "Turun kembali perlahan.",
+          ],
+          b: "Membentuk otot perut (Sixpack) dan menjaga postur pinggang saat baris berbaris.",
+        },
+        {
+          t: "Merayap 20m",
+          steps: [
+            "Badan tiarap penuh di tanah/rumput.",
+            "Maju menggunakan kekuatan siku dan tolakan kaki.",
+            "Jaga pantat tetap rendah (jangan nungging).",
+            "Pandangan awas ke depan.",
+          ],
+          b: "Melatih koordinasi tubuh dan kekuatan bahu, serta mental pantang menyerah.",
+        },
+        {
+          t: "Push Up Diamond 15x",
+          steps: [
+            "Satukan jari telunjuk dan ibu jari membentuk wajik/diamond.",
+            "Posisi tangan tepat di bawah ulu hati.",
+            "Lakukan gerakan push up seperti biasa.",
+          ],
+          b: "Fokus melatih otot tricep bagian dalam untuk kekuatan tangan saat mengerek bendera.",
+        },
+        {
+          t: "Mountain Climber 1m",
+          steps: [
+            "Posisi awal push up.",
+            "Tarik lutut kanan ke arah dada.",
+            "Kembali, lalu tarik lutut kiri.",
+            "Lakukan bergantian dengan tempo cepat seperti berlari.",
+          ],
+          b: "Membakar kalori dengan cepat dan melatih kekuatan otot perut bagian bawah.",
+        },
+      ];
+
+      const dbPutri = [
+        {
+          t: "Jogging 3 Putaran Lapangan",
+          steps: [
+            "Lari dengan tempo sedang (tidak sprint).",
+            "Atur nafas: 2 langkah tarik, 2 langkah buang.",
+            "Pertahankan barisan tetap rapi jika berkelompok.",
+            "Tangan mengepal rileks di samping badan.",
+          ],
+          b: "Meningkatkan daya tahan tubuh (Endurance) agar kuat berdiri lama di lapangan.",
+        },
+        {
+          t: "Plank 1 Menit",
+          steps: [
+            "Tumpuan pada siku dan ujung kaki.",
+            "Badan lurus seperti papan.",
+            "Tahan nafas di dada, kencangkan perut.",
+            "Jika gemetar, itu tanda otot sedang bekerja.",
+          ],
+          b: "Menguatkan otot punggung dan perut untuk menjaga sikap duduk dan berdiri yang anggun.",
+        },
+        {
+          t: "Wall Sit 1 Menit",
+          steps: [
+            "Sandarkan punggung rata di tembok.",
+            "Turunkan badan hingga lutut menekuk 90 derajat.",
+            "Tangan lurus ke depan rata air.",
+            "Tahan posisi, kaki jangan goyang.",
+          ],
+          b: "Menguatkan otot paha (Quadriceps) untuk menopang tubuh saat langkah tegap perlahan.",
+        },
+        {
+          t: "Jumping Jack 50x",
+          steps: [
+            "Berdiri tegak.",
+            "Lompat buka kaki sambil tepuk tangan di atas kepala.",
+            "Lompat tutup kaki sambil tangan kembali ke samping.",
+            "Hitungan harus tegas.",
+          ],
+          b: "Melatih koordinasi tangan-kaki dan meningkatkan kapasitas jantung (Cardio).",
+        },
+        {
+          t: "Squat 30x",
+          steps: [
+            "Berdiri selebar bahu.",
+            "Turunkan pantat seolah mau duduk di kursi.",
+            "Usahakan lutut tidak melebihi ujung jari kaki.",
+            "Kembali berdiri tegak.",
+          ],
+          b: "Melatih otot bokong dan paha agar kuda-kuda kaki kuat saat PBB.",
+        },
+        {
+          t: "Langkah Tegap 50m",
+          steps: [
+            "Maju jalan dengan hentakan tumit keras.",
+            "Ayunan tangan lurus rata bahu (depan) dan 30 derajat (belakang).",
+            "Dada dibusungkan, dagu ditarik.",
+            "Jari tangan mengepal (seperti memeras santan).",
+          ],
+          b: "Memperbaiki form gerakan PBB agar terlihat patah-patah dan bertenaga.",
+        },
+        {
+          t: "Hormat 5 Menit Ke Bendera",
+          steps: [
+            "Sikap sempurna.",
+            "Angkat tangan kanan, jari rapat lurus.",
+            "Ujung jari tengah menempel di pelipis/ujung topi.",
+            "Siku serong depan 15 derajat.",
+            "Tatapan lurus, dilarang bergerak sedikitpun.",
+          ],
+          b: "Melatih ketahanan otot bahu dan fokus mata (tidak lirik-lirik) saat upacara.",
+        },
+        {
+          t: "Kapal Terbang 1m",
+          steps: [
+            "Berdiri dengan satu kaki.",
+            "Condongkan badan ke depan, kaki belakang lurus ke atas.",
+            "Rentangkan tangan ke samping.",
+            "Tahan keseimbangan, ganti kaki jika diminta.",
+          ],
+          b: "Melatih keseimbangan tubuh (Balance) yang penting untuk manuver barisan.",
+        },
+        {
+          t: "Back Up 25x",
+          steps: [
+            "Tidur telungkup.",
+            "Tangan di samping telinga/belakang kepala.",
+            "Angkat dada dari lantai setinggi mungkin.",
+            "Kaki tetap menempel di lantai.",
+          ],
+          b: "Menguatkan otot pinggang belakang agar tidak mudah pegal saat berdiri tegak.",
+        },
+        {
+          t: "Tahan Nafas 1m",
+          steps: [
+            "Ambil nafas dalam-dalam lewat hidung.",
+            "Simpan di rongga dada/perut.",
+            "Tahan selama mungkin (target 1 menit).",
+            "Buang perlahan lewat mulut.",
+          ],
+          b: "Memperbesar kapasitas paru-paru, penting untuk aba-aba suara yang lantang dan panjang.",
+        },
+      ];
+
+      const dbCampuran = [
+        {
+          t: "Lari Barisan",
+          steps: [
+            "Bentuk formasi berbanjar/bersaf.",
+            "Lari dengan langkah kaki seragam (Kiri-Kanan).",
+            "Nyanyikan lagu penyemangat Paskibra.",
+            "Jaga jarak antar teman tetap sama.",
+          ],
+          b: "Membangun kekompakan tim (Jiwa Korsa) dan irama langkah yang satu frekuensi.",
+        },
+        {
+          t: "Hormat Bendera",
+          steps: [
+            "Menghadap tiang bendera.",
+            "Lakukan penghormatan sempurna selama 10 menit.",
+            "Bayangkan bendera sedang naik.",
+            "Hayati makna Merah Putih.",
+          ],
+          b: "Menanamkan rasa nasionalisme dan melatih ketenangan sikap (Composure).",
+        },
+        {
+          t: "Nyanyi Anthem",
+          steps: [
+            "Sikap Sempurna.",
+            "Tarik nafas dalam.",
+            "Nyanyikan Indonesia Raya / Bagimu Negeri.",
+            "Suara harus power (dari diafragma), bukan tenggorokan.",
+          ],
+          b: "Melatih vokal agar suara lantang saat memberi aba-aba, serta kecintaan pada negara.",
+        },
+        {
+          t: "Operasi Semut",
+          steps: [
+            "Menyebar ke seluruh area latihan.",
+            "Ambil sampah sekecil apapun (puntung rokok, plastik).",
+            "Kumpulkan di satu tempat.",
+            "Lakukan dengan lari kecil.",
+          ],
+          b: "Melatih kepekaan, kepedulian lingkungan, dan kerendahan hati seorang Paskibra.",
+        },
+        {
+          t: "PBB Dasar 5m",
+          steps: [
+            "Lakukan gerakan di tempat: Hadap Kanan, Hadap Kiri, Balik Kanan.",
+            "Gerakan harus patah-patah.",
+            "Bunyi hentakan kaki harus keras dan kompak.",
+          ],
+          b: "Mempertajam refleks gerakan dasar agar tidak ada kesalahan saat manuver.",
+        },
+        {
+          t: "Sikap Sempurna 8m",
+          steps: [
+            "Tumit rapat, ujung kaki buka 45 derajat.",
+            "Lutut dikunci lurus.",
+            "Perut ditarik, dada dibusungkan.",
+            "Tangan lurus mengepal di samping paha.",
+            "Bernafas hidung, mata tidak berkedip berlebihan.",
+          ],
+          b: "Pondasi utama Paskibra. Melatih mental baja dan fisik yang tidak mudah goyah.",
+        },
+        {
+          t: "Yel-Yel Bebas Kompak",
+          steps: [
+            "Kumpul melingkar atau bentuk barisan.",
+            "Lakukan gerakan yel-yel dengan enerjik.",
+            "Suara harus maksimal sampai serak.",
+            "Ekspresi wajah harus garang/semangat.",
+          ],
+          b: "Meningkatkan semangat juang (Morale) dan menghilangkan rasa lelah setelah latihan.",
+        },
+        {
+          t: "Squat Bersama",
+          steps: [
+            "Buat lingkaran saling rangkul pundak.",
+            "Lakukan squat (jongkok-berdiri) bersamaan.",
+            "Hitung dengan suara keras.",
+            "Pastikan turun dan naik bersamaan.",
+          ],
+          b: "Melatih kekompakan rasa. Jika satu capek, semua menanggung beban bersama.",
+        },
+      ];
+
+      // === SETUP ===
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 50 },
+          size: { value: 2 },
+          move: { speed: 1 },
+        },
+      });
+      window.onload = () => document.getElementById("real-pin").focus();
+
+      // === LOGIN ===
+      const realPin = document.getElementById("real-pin");
+      const digits = document.querySelectorAll(".pin-digit");
+      realPin.addEventListener("input", (e) => {
+        const val = e.target.value;
+        digits.forEach((d, i) => {
+          d.textContent = val[i] ? "•" : "";
+          d.style.borderColor = val[i] ? "#fff" : "rgba(255,255,255,0.1)";
+        });
+        if (val.length === 6) val === PIN_CODE ? loginSuccess() : loginFail();
+      });
+      function loginSuccess() {
+        if (navigator.vibrate) navigator.vibrate(50);
+        gsap.to("#login-section", {
+          y: "-100%",
+          duration: 0.8,
+          ease: "power2.inOut",
+          onComplete: () => {
+            document.getElementById("dashboard-section").style.display =
+              "block";
+            gsap.to("#dashboard-section", { opacity: 1 });
+            changeCount(1);
+          },
+        });
+      }
+      function loginFail() {
+        if (navigator.vibrate) navigator.vibrate(300);
+        gsap.to(".pin-digit", { x: 10, yoyo: true, repeat: 5, duration: 0.05 });
+        gsap.to("#login-status", {
+          opacity: 1,
+          duration: 0.2,
+          yoyo: true,
+          repeat: 1,
+        });
+        setTimeout(() => {
+          realPin.value = "";
+          digits.forEach((d) => {
+            d.textContent = "";
+            d.style.borderColor = "rgba(255,255,255,0.1)";
+          });
+        }, 800);
+      }
+
+      // === DASHBOARD ===
+      function changeCount(n) {
+        document.querySelectorAll(".count-btn").forEach((btn, i) => {
+          const active = i + 1 === n;
+          gsap.to(btn, {
+            backgroundColor: active ? "#b91c1c" : "rgba(0,0,0,0.4)",
+            color: active ? "#fff" : "#6b7280",
+            borderColor: active ? "#ef4444" : "#374151",
+            scale: active ? 1.05 : 1,
+            duration: 0.2,
+          });
+        });
+        const cont = document.getElementById("input-container");
+        cont.innerHTML = "";
+        for (let i = 1; i <= n; i++) {
+          const div = document.createElement("div");
+          div.className = "flex gap-3";
+          div.innerHTML = `<input type="text" placeholder="NAMA PELANGGAR ${i}" class="input-name flex-1 bg-white/5 border border-white/10 rounded px-4 py-3 text-white focus:border-red-500 outline-none uppercase font-bold tracking-wider placeholder-gray-600"><button class="gender-toggle g-male w-16 rounded font-bold border border-white/10 flex items-center justify-center text-lg" onclick="toggleGender(this)" data-gender="L">L</button>`;
+          cont.appendChild(div);
+          gsap.from(div, { y: 20, opacity: 0, delay: i * 0.1, duration: 0.3 });
+        }
+      }
+      function toggleGender(btn) {
+        const isL = btn.dataset.gender === "L";
+        btn.dataset.gender = isL ? "P" : "L";
+        btn.innerText = isL ? "P" : "L";
+        btn.className = `gender-toggle ${isL ? "g-female" : "g-male"} w-16 rounded font-bold border flex items-center justify-center text-lg`;
+      }
+
+      // === ROULETTE LOGIC ===
+      function prepareRoll() {
+        const inputs = document.querySelectorAll(".input-name");
+        const genders = document.querySelectorAll(".gender-toggle");
+        let empty = false;
+        inputs.forEach((n) => {
+          if (!n.value.trim()) empty = true;
+        });
+        if (empty) {
+          alert("ISI SEMUA NAMA!");
+          return;
+        }
+
+        let l = 0,
+          p = 0;
+        genders.forEach((g) => (g.dataset.gender === "L" ? l++ : p++));
+        let db = dbCampuran;
+        let mode = "BAGIAN: CAMPURAN (L & P)";
+        let color = "text-purple-400";
+        if (l > 0 && p === 0) {
+          db = dbPutra;
+          mode = "BAGIAN: PUTRA";
+          color = "text-blue-400";
+        } else if (p > 0 && l === 0) {
+          db = dbPutri;
+          mode = "BAGIAN: PUTRI";
+          color = "text-pink-400";
+        }
+
+        // UI Setup
+        const overlay = document.getElementById("result-overlay");
+        const track = document.getElementById("roulette-track");
+        const actions = document.getElementById("result-actions");
+        const status = document.getElementById("status-text");
+        const badge = document.getElementById("mode-badge");
+
+        badge.innerText = mode;
+        badge.className = `inline-block px-4 py-1 border border-white/20 rounded text-[10px] uppercase tracking-widest mb-2 bg-white/5 ${color}`;
+        actions.classList.add("hidden");
+        actions.style.opacity = 0;
+        document.getElementById("guide-panel").style.display = "none";
+        status.innerText = "MENGACAK HUKUMAN...";
+        status.classList.add("animate-pulse");
+        status.style.color = "#ef4444";
+
+        // Prepare Items
+        const totalItems = 50;
+        const winnerIndex = 40;
+        currentResultObj = db[Math.floor(Math.random() * db.length)];
+        let html = "";
+        for (let i = 0; i < totalItems; i++) {
+          let itemObj =
+            i === winnerIndex
+              ? currentResultObj
+              : db[Math.floor(Math.random() * db.length)];
+          html += `<div class="roulette-item ${i === winnerIndex ? "winner-target" : ""}">${itemObj.t}</div>`;
+        }
+        track.innerHTML = html;
+
+        overlay.classList.remove("hidden");
+        gsap.to(overlay, { opacity: 1, duration: 0.3 });
+        gsap.set(track, { y: 0 });
+
+        // Calc position
+        const targetY = -(winnerIndex * 50 + 25 - 60);
+        if (navigator.vibrate) navigator.vibrate(100);
+
+        gsap.to(track, {
+          y: targetY,
+          duration: 4,
+          ease: "power4.out",
+          onComplete: () => {
+            if (navigator.vibrate) navigator.vibrate([200, 100, 500]);
+            document.querySelector(".winner-target").classList.add("winner");
+            status.innerText = "TARGET TERKUNCI [LOCKED]";
+            status.classList.remove("animate-pulse");
+            status.style.color = "#22c55e";
+            actions.classList.remove("hidden");
+            gsap.to(actions, { opacity: 1, y: 0, duration: 0.5 });
+          },
+        });
+      }
+
+      // === GUIDE LOGIC ===
+      function toggleGuide() {
+        const panel = document.getElementById("guide-panel");
+        const stepsList = document.getElementById("guide-steps");
+        const benefitText = document.getElementById("guide-benefit");
+
+        if (panel.style.display === "block") {
+          gsap.to(panel, {
+            height: 0,
+            opacity: 0,
+            duration: 0.3,
+            onComplete: () => (panel.style.display = "none"),
+          });
+        } else {
+          // Populate Data
+          stepsList.innerHTML = currentResultObj.steps
+            .map((s) => `<li>${s}</li>`)
+            .join("");
+          benefitText.textContent = currentResultObj.b;
+
+          panel.style.display = "block";
+          panel.style.height = "auto";
+          gsap.from(panel, {
+            height: 0,
+            opacity: 0,
+            duration: 0.5,
+            ease: "power2.out",
+          });
+        }
+      }
+      function closeResult() {
+        const overlay = document.getElementById("result-overlay");
+        gsap.to(overlay, {
+          opacity: 0,
+          duration: 0.3,
+          onComplete: () => overlay.classList.add("hidden"),
+        });
+      }
+    </script>
+  </body>
+</html>
